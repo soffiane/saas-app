@@ -1,8 +1,6 @@
 package com.boudissa.saasapp.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +8,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Setter
@@ -29,5 +28,11 @@ public class Product extends AbstractEntity {
     private Integer alertThreshold;
     @Column(name = "price", nullable = false)
     private BigDecimal price;
-    //private Integer quantity;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @OneToMany(mappedBy = "product")
+    private List<StockMvt> stockMovements;
 }
