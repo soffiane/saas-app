@@ -7,6 +7,7 @@ import com.boudissa.saasapp.entities.Category;
 import com.boudissa.saasapp.repositories.CategoryRepository;
 import com.boudissa.saasapp.repositories.ProductRepository;
 import com.boudissa.saasapp.services.CategoryService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -18,6 +19,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;

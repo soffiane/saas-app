@@ -22,3 +22,34 @@ Si ca se passe bien, ca ajoute une ligne dans la table flyway_schema_history
 909064249 est un checksum
 Si le script est modifié, il faut supprimer la ligne dans la table flyway_schema_history sinon ca plante
 
+----------------------------------------------------------------
+
+Approche base unique multi tenant
+
+1ere etape : gestion de la migration FLyway en ajoutant le tenant_id dans les tables
+On ajoute un scripts SQL qui va ajouter la colonne tenant_id et on l'ajoute a l'entité generique AbstractEntity
+Au demarrage de l'application, le script SQL est executé et la colonne tenant_id est ajoutée dans les tables
+On peut aussi verifier dans la table flyway_schema_history que le script a bien ete executé
+
+2eme etape : 
+TenantContext et TenantFilter qui implements Filter de Servlet
+
+3eme etape : 
+composant AOP avec TenantHibernateFilter
+
+4eme etape : 
+Comment faire executer le filter TenantFilter ? Avec des annotations au niveau des entités
+@FilterDef(name = "tenantFilter",
+parameters = @ParamDef(name = "tenantId", type = String.class),
+defaultCondition = "tenant_id = :tenantId")
+@Filter(name = "tenantFilter")
+
+Les requetets vont ajouter le tenant_id et spring va pouvoir filtrer les requetes
+
+on ajoute un header X-Tenant-Id dans la requete HTTTP
+Dans le code Java, on ajout une classe TenantFilter qui va intercepter la requete et ajouter le tenant_id, ce tenant_id sera disponible dans toute la requete
+TenantContext.getCurrentTenantId() permet de recuperer le tenant_id et on l'injecte dans le TenantHibernateFilter
+Avec AOP on va activer le tenant_id
+Ensuite coté hibernate il faut gerer ce tenant_id 
+
+Avec SpringSecurity on peut mettre le tenant_id dans le token JWT et l'extraire ensuite
