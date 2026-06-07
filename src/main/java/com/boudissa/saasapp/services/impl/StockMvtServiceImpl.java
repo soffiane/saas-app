@@ -3,8 +3,8 @@ package com.boudissa.saasapp.services.impl;
 import com.boudissa.saasapp.dto.mapper.StockMvtMapper;
 import com.boudissa.saasapp.dto.stockmvt.StockMvtRequest;
 import com.boudissa.saasapp.dto.stockmvt.StockMvtResponse;
-import com.boudissa.saasapp.entities.Product;
 import com.boudissa.saasapp.entities.StockMvt;
+import com.boudissa.saasapp.exception.ResourcesNotFoundException;
 import com.boudissa.saasapp.repositories.ProductRepository;
 import com.boudissa.saasapp.repositories.StockMvtRepository;
 import com.boudissa.saasapp.services.StockMvtService;
@@ -13,8 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,19 +31,16 @@ public class StockMvtServiceImpl implements StockMvtService {
 
     @Override
     public void update(String id, StockMvtRequest request) {
-        Optional<StockMvt> stockMvt = stockMvtRepository.findById(id);
-        if(stockMvt.isEmpty()) {
-            log.error("Stock movement not found");
-            throw new IllegalArgumentException("Stock movement not found");
-        }
+        findStockMovementById(id);
         checkIfProductExistsById(request.getProductId());
-        stockMvtRepository.save(stockMvtMapper.toEntity(request));
+        final StockMvt stockMvt = stockMvtMapper.toEntity(request);
+        stockMvt.setId(id);
+        stockMvtRepository.save(stockMvt);
     }
 
     @Override
     public void delete(String id) {
-        final StockMvt stockMovementNotFound = stockMvtRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Stock movement not found"));
-        stockMvtRepository.delete(stockMovementNotFound);
+        stockMvtRepository.delete(findStockMovementById(id));
     }
 
     @Override
@@ -56,15 +51,18 @@ public class StockMvtServiceImpl implements StockMvtService {
 
     @Override
     public StockMvtResponse findById(String id) {
-        return stockMvtMapper.toResponse(stockMvtRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Stock movement not found")));
+        return stockMvtMapper.toResponse(findStockMovementById(id));
     }
 
     private void checkIfProductExistsById(String id) {
-        final Optional<Product> product = productRepository.findById(id);
-        if(product.isEmpty()){
+        if (!productRepository.existsById(id)) {
             log.error("Product not found");
-            throw new IllegalArgumentException("Product not found");
+            throw new ResourcesNotFoundException("Product not found");
         }
     }
 
+    private StockMvt findStockMovementById(String id) {
+        return stockMvtRepository.findById(id)
+                .orElseThrow(() -> new ResourcesNotFoundException("Stock movement not found"));
+    }
 }

@@ -7,7 +7,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,35 +16,31 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
     private final ProductService productService;
 
-
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Void> create(@RequestBody @Valid ProductRequest request){
+    public ResponseEntity<Void> create(@RequestBody @Valid ProductRequest request) {
         productService.create(request);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(201).build();
     }
 
-
     @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<Void> update(@RequestBody @Valid ProductRequest request, @PathVariable @NotNull(message = "id is required") String id){
+    public ResponseEntity<Void> update(@RequestBody @Valid ProductRequest request, @PathVariable @NotNull(message = "id is required") String id) {
         productService.update(id, request);
-        return  ResponseEntity.noContent().build();
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id){
+    public ResponseEntity<Void> delete(@PathVariable String id) {
         productService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping
-    public ResponseEntity<Page<ProductResponse>> findAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
+    public ResponseEntity<Page<ProductResponse>> findAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(productService.findAll(page, size));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductResponse> findById(@PathVariable @NotNull(message = "id is required") String id){
+    public ResponseEntity<ProductResponse> findById(@PathVariable @NotNull(message = "id is required") String id) {
         return ResponseEntity.ok(productService.findById(id));
     }
 }

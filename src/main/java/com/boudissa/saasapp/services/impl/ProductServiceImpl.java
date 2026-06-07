@@ -3,8 +3,9 @@ package com.boudissa.saasapp.services.impl;
 import com.boudissa.saasapp.dto.mapper.ProductMapper;
 import com.boudissa.saasapp.dto.product.ProductRequest;
 import com.boudissa.saasapp.dto.product.ProductResponse;
-import com.boudissa.saasapp.entities.Category;
 import com.boudissa.saasapp.entities.Product;
+import com.boudissa.saasapp.exception.DuplicateResourceException;
+import com.boudissa.saasapp.exception.ResourcesNotFoundException;
 import com.boudissa.saasapp.repositories.CategoryRepository;
 import com.boudissa.saasapp.repositories.ProductRepository;
 import com.boudissa.saasapp.services.ProductService;
@@ -35,20 +36,17 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void update(String id, ProductRequest request) {
-        final Optional<Product> productExists = productRepository.findById(id);
-        if(productExists.isEmpty()){
-            log.error("Product not found");
-            throw new IllegalArgumentException("Product not found");
-        }
+        findProductById(id);
         checkIfProductAlreadyExistsByReference(request);
         checkIfCategoryExistsById(request);
         final Product product = productMapper.toEntity(request);
+        product.setId(id);
         productRepository.save(product);
     }
 
     @Override
     public void delete(String id) {
-
+        productRepository.delete(findProductById(id));
     }
 
     @Override
@@ -59,22 +57,26 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse findById(String id) {
-        return productMapper.toResponse(productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Product not found")));
+        return productMapper.toResponse(findProductById(id));
     }
 
-    private void checkIfProductAlreadyExistsByReference(ProductRequest request){
+    private void checkIfProductAlreadyExistsByReference(ProductRequest request) {
         final Optional<Product> product = productRepository.findByReference(request.getReference());
-        if(product.isPresent()){
+        if (product.isPresent()) {
             log.error("Product already exists");
-            throw new IllegalArgumentException("Product already exists");
+            throw new DuplicateResourceException("Product already exists");
         }
     }
 
-    private void checkIfCategoryExistsById(ProductRequest request){
-        final Optional<Category> category = categoryRepository.findById(request.getCategoryId());
-        if(category.isEmpty()){
+    private void checkIfCategoryExistsById(ProductRequest request) {
+        if (!categoryRepository.existsById(request.getCategoryId())) {
             log.error("Category not found");
-            throw new IllegalArgumentException("Category not found");
+            throw new ResourcesNotFoundException("Category not found");
         }
+    }
+
+    private Product findProductById(String id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ResourcesNotFoundException("Product not found"));
     }
 }
