@@ -53,3 +53,34 @@ Avec AOP on va activer le tenant_id
 Ensuite coté hibernate il faut gerer ce tenant_id 
 
 Avec SpringSecurity on peut mettre le tenant_id dans le token JWT et l'extraire ensuite
+
+-----------------------------------------------------------------------------------------------------------------------------------
+Chiffrement RSA asymetrique
+Cle privée - clé publique - public.pem / private.prem generée par exemple avec OpenSSL
+Token JWT :
+- header : algorithme utilisé et type
+- payload : données (roles, nom, id, etc, iat, exp)
+- signature : cree avec la cle privée
+Flux authentification :
+- appel du frontend avec un formulaire de connexion
+- AuthController : valide login et password : construit les claims et signe avec la cle privée
+- JwtService : genere un token JWT
+- Reponse : envoie le token JWT au frontend
+
+Flux validation
+- frontend ajoute le token JWT dans le header Authorization (bearer)
+- JwtAuthenticationFilter : lit le token JWT et le decode et crée le SecurityContext
+- JwtService valide le token avec la cle publique
+- SecurityContext contient les informations de l'utilisateur
+- Le controller peut recuperer les informations de l'utilisateur avec SecurityContextHolder
+
+Composants Spring Boot impliqués
+- RsaKeyProperties
+- JwtService
+- JwtAuthenticationFilter
+- SecurityConfig
+
+openssl genrsa -out private.pem 2048
+openssl rsa -in private.pem -pubout -out public.pem
+
+Charger les clés dans Springboot

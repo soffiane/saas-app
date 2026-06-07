@@ -47,3 +47,10 @@ spring:
 #server configuration
 server:
   port: ${SERVER_PORT:8080}
+
+app:
+  jwt:
+    private_key_path: ${JWT_PRIVATE_KEY_PATH:./private.pem}
+    public_key_path: ${JWT_PUBLIC_KEY_PATH:./public.pem}
+    access-token-expiration: ${JWT_EXPIRATION:86400000}
+

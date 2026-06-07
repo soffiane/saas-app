@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,16 +14,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.Instant;
 import java.util.List;
 
-/**
- * meilleure proposition Java 21 appliquée
- * J’ai remplacé l’approche ProblemDetail par un DTO local basé sur un record.
- * <p>
- * Pourquoi c’est plus compatible Java 21
- * record Java : parfait pour représenter une réponse immuable.
- * Pas de dépendance au type abstrait Spring org.springframework.web.ErrorResponse.
- * Structure JSON claire pour l’API.
- * Code simple et typé.
- */
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
@@ -57,6 +49,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
+    @ExceptionHandler(value = BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleException(final BadCredentialsException ex, final HttpServletRequest request) {
+        final ErrorResponse errorResponse = ErrorResponse.builder()
+                .message("Login / Password incorrect")
+                .path(request.getRequestURI())
+                .build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
+    @ExceptionHandler(value = UsernameNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleException(final UsernameNotFoundException ex, final HttpServletRequest request) {
+        final ErrorResponse errorResponse = ErrorResponse.builder()
+                .message("Login / Password incorrect")
+                .path(request.getRequestURI())
+                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
     private ErrorResponse.ValidationError toValidationError(FieldError fieldError) {
         return ErrorResponse.ValidationError.builder()
                 .field(fieldError.getField())
@@ -69,6 +79,7 @@ public class GlobalExceptionHandler {
         return switch (ex) {
             case DuplicateResourceException ignored -> HttpStatus.CONFLICT;
             case ResourcesNotFoundException ignored -> HttpStatus.NOT_FOUND;
+            case UnauthorizedException ignored -> HttpStatus.UNAUTHORIZED;
             default -> HttpStatus.BAD_REQUEST;
         };
     }
