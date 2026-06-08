@@ -18,7 +18,7 @@ validate-on-migrate: true
 
 Si ca se passe bien, ca ajoute une ligne dans la table flyway_schema_history
 
-1,1,Init DB,SQL,V1__Init_DB.sql,909064249,postgres,2026-05-31 15:17:24.794172,19,true
+1,1,Init DB,SQL,V1__Init_DB_For_Tenant.sql,909064249,postgres,2026-05-31 15:17:24.794172,19,true
 909064249 est un checksum
 Si le script est modifié, il faut supprimer la ligne dans la table flyway_schema_history sinon ca plante
 

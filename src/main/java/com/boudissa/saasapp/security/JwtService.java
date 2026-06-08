@@ -118,7 +118,7 @@ public class JwtService {
             }
 
             final String key = new String(is.readAllBytes());
-            final String publicKeyString = key.replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "").replaceAll("\\s", "");
+            final String publicKeyString = key.replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "").replaceAll("\\s", "");
             final X509EncodedKeySpec spec = new X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyString));
             return KeyFactory.getInstance("RSA").generatePublic(spec);
         }

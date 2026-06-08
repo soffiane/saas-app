@@ -198,7 +198,7 @@ spring:
 Au démarrage, Flyway exécute les scripts SQL versionnés, par exemple :
 
 ```text
-V1__Init_DB.sql
+V1__Init_DB_For_Tenant.sql
 ```
 
 Si la migration s'exécute correctement, une ligne est ajoutée dans la table :

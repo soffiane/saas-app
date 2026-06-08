@@ -2,7 +2,10 @@ package com.boudissa.saasapp.controller;
 
 import com.boudissa.saasapp.dto.login.LoginRequest;
 import com.boudissa.saasapp.dto.login.LoginResponse;
+import com.boudissa.saasapp.dto.tenant.TenantRequest;
+import com.boudissa.saasapp.dto.tenant.TenantResponse;
 import com.boudissa.saasapp.services.AuthenticationService;
+import com.boudissa.saasapp.services.TenantService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,9 +22,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
+    private final TenantService tenantService;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
         return ResponseEntity.ok(authenticationService.login(request));
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<TenantResponse> registerTenant(@RequestBody @Valid TenantRequest request) {
+        tenantService.registerTenant(request);
+        return ResponseEntity.ok().build();
     }
 }

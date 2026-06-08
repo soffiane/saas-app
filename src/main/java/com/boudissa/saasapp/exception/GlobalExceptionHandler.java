@@ -80,6 +80,7 @@ public class GlobalExceptionHandler {
             case DuplicateResourceException ignored -> HttpStatus.CONFLICT;
             case ResourcesNotFoundException ignored -> HttpStatus.NOT_FOUND;
             case UnauthorizedException ignored -> HttpStatus.UNAUTHORIZED;
+            case TenantProvisioningException ignored -> HttpStatus.INTERNAL_SERVER_ERROR;
             default -> HttpStatus.BAD_REQUEST;
         };
     }

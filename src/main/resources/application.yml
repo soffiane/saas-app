@@ -3,7 +3,8 @@ spring:
     name: saas-app
   jpa:
     hibernate:
-      ddl-auto: validate
+      #cree les tables si elles n'existent pas depuis les entities
+      ddl-auto: create
     show-sql: true
     open-in-view: false
     properties:
@@ -39,7 +40,7 @@ spring:
     baseline-on-migrate: true
     locations:
       - classpath:/db/migration/common
-      - classpath:/db/migration/tenant
+      #- classpath:/db/migration/tenant
     schemas: public
     table: flyway_schema_history
     validate-on-migrate: true
@@ -50,7 +51,7 @@ server:
 
 app:
   jwt:
-    private_key_path: ${JWT_PRIVATE_KEY_PATH:./private.pem}
-    public_key_path: ${JWT_PUBLIC_KEY_PATH:./public.pem}
+    private_key_path: ${JWT_PRIVATE_KEY_PATH:/certs/private.pem}
+    public_key_path: ${JWT_PUBLIC_KEY_PATH:/certs/public.pem}
     access-token-expiration: ${JWT_EXPIRATION:86400000}
 
