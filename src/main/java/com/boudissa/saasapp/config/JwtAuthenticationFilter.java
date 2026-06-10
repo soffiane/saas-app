@@ -24,6 +24,7 @@ import java.util.Collections;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final TenantSchemaResolver tenantSchemaResolver;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -40,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String tenantId = jwtService.getTenantIdFromToken(token);
                 if (tenantId != null) {
                     TenantContext.setCurrentTenant(tenantId);
-                    TenantContext.setCurrentSchemma("not-yet-implemented");
+                    TenantContext.setCurrentSchemma(tenantSchemaResolver.resolveSchemaName(tenantId));
                 }
                 //create authentication object
                 SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role);
@@ -48,12 +49,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 log.debug("Authentication Success for User {}, tenant {}, role {}", user, tenantId, role);
-                filterChain.doFilter(request, response);
-                TenantContext.clear();
             }
+            //on poursuit TOUJOURS la chaine: les endpoints publics (register, login...) n'ont pas de token
+            filterChain.doFilter(request, response);
         } catch (Exception e) {
             log.error("Authentication Failed", e);
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+        } finally {
+            TenantContext.clear();
         }
     }
 

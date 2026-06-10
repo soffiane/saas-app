@@ -59,9 +59,6 @@ public class AbstractEntity {
         if (this.deleted == null) {
             this.deleted = Boolean.FALSE;
         }
-        /*if(this.tenantId == null){
-            this.tenantId = TenantContext.getCurrentTenant();
-        }*/
     }
 
 }

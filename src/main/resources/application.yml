@@ -3,8 +3,9 @@ spring:
     name: saas-app
   jpa:
     hibernate:
-      #cree les tables si elles n'existent pas depuis les entities
-      ddl-auto: create
+      #create cree les tables si elles n'existent pas depuis les entities
+      #on va mettre none pour empecher de creer les tables via Hibernate et le faire faire par Flyway via la script V1__Init_Common_DB.sql
+      ddl-auto: none
     show-sql: true
     open-in-view: false
     properties:

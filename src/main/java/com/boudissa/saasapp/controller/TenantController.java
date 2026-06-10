@@ -1,9 +1,7 @@
 package com.boudissa.saasapp.controller;
 
-import com.boudissa.saasapp.dto.tenant.TenantRequest;
 import com.boudissa.saasapp.dto.tenant.TenantResponse;
 import com.boudissa.saasapp.services.TenantService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +13,6 @@ import org.springframework.web.bind.annotation.*;
 public class TenantController {
 
     private final TenantService tenantService;
-
-    @PostMapping("/register")
-    public ResponseEntity<Void> registerTenant(@RequestBody @Valid TenantRequest request) {
-        tenantService.registerTenant(request);
-        return ResponseEntity.ok().build();
-    }
 
     @PatchMapping("/approve/{tenantId}")
     public ResponseEntity<Void> approveTenant(@PathVariable String tenantId) {

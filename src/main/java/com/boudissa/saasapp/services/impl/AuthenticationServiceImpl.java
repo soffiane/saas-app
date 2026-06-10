@@ -22,7 +22,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public LoginResponse login(LoginRequest request) {
         final Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
         final User user = (User) authenticate.getPrincipal();
-        final String token = jwtService.generateToken(user.getUsername(), user.getTenantId(), user.getRole().name());
+        final String token = jwtService.generateToken(user.getTenantId(), user.getUsername(), user.getRole().name());
         return LoginResponse.builder()
                 .accessToken(token)
                 .tokenType("Bearer")

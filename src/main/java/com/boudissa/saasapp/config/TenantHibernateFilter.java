@@ -2,21 +2,21 @@ package com.boudissa.saasapp.config;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.hibernate.Session;
-import org.springframework.stereotype.Component;
 
 /**
  * active le filtre Hibernate avant chaque requete jouée dans une classe appelée dans le repertoire repositories
- *
+ * <p>
  * ca ajoute aux requetes une clause WHERE tenant_id = :tenantId
- *
+ * <p>
  * Alternative :
  * On pourrait aussi utiliser un HandlerInterceptor ou un @EventListener
  */
-@Component
-@Aspect
+// Désactivé: @Component et @Aspect retirés pour que l'aspect ne soit plus appliqué
+// (le filtre Hibernate "tenantFilter" est aussi commenté dans AbstractEntity)
+//@Component
+//@Aspect
 public class TenantHibernateFilter {
 
     @PersistenceContext

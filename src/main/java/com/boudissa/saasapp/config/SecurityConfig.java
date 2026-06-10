@@ -22,7 +22,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     public static final String[] PUBLIC_URLS = {
-            "/api/v1/auth/**",
+            "/api/v1/**",
             "/swagger-ui/**",
             "/v3/api-docs/**"
     };

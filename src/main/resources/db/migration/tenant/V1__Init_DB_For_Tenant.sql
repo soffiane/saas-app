@@ -1,4 +1,4 @@
-create table public.categories
+create table categories
 (
     id          varchar(255) not null primary key,
     created_at  timestamp(6) not null,
@@ -12,7 +12,7 @@ create table public.categories
             unique
 );
 
-create table public.products
+create table products
 (
     id              varchar(255)   not null primary key,
     created_at      timestamp(6)   not null,
@@ -28,10 +28,10 @@ create table public.products
         constraint product_reference_unique_constraint
             unique,
     category_id     varchar(255)
-        constraint fk_category_id references public.categories
+        constraint fk_category_id references categories
 );
 
-create table public.stock_mvts
+create table stock_mvts
 (
     id         varchar(255) not null
         primary key,
@@ -47,5 +47,5 @@ create table public.stock_mvts
         constraint stock_mvts_type_mvt_check
             check ((type_mvt)::text = ANY ((ARRAY ['IN'::character varying, 'OUT'::character varying])::text[])),
     product_id varchar(255)
-        constraint fk_product_id references public.products
+        constraint fk_product_id references products
 );

@@ -14,7 +14,6 @@ import com.boudissa.saasapp.repositories.TenantRepository;
 import com.boudissa.saasapp.repositories.UserRepository;
 import com.boudissa.saasapp.services.TenantProvisioningService;
 import com.boudissa.saasapp.services.TenantService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -27,7 +26,7 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
+//@Transactional
 public class TenantServiceImpl implements TenantService {
 
     private final TenantRepository tenantRepository;
@@ -37,7 +36,7 @@ public class TenantServiceImpl implements TenantService {
     private final TenantProvisioningService tenantProvisioningService;
 
     @Override
-    public void registerTenant(TenantRequest tenant) {
+    public TenantResponse registerTenant(TenantRequest tenant) {
         //check if tenant already exists
         if (tenantRepository.existsByCompanyCode(tenant.getCompanyCode())) {
             throw new DuplicateResourceException("Tenant already exists");
@@ -50,8 +49,8 @@ public class TenantServiceImpl implements TenantService {
         final Tenant tenantEntity = tenantMapper.toEntity(tenant);
         tenantEntity.setStatus(TenantStatus.PENDING);
         tenantEntity.setAdminPassword(passwordEncoder.encode(tenant.getAdminPassword()));
-        tenantRepository.save(tenantEntity);
-
+        final Tenant savedTenant = tenantRepository.save(tenantEntity);
+        return tenantMapper.toResponse(savedTenant);
     }
 
     @Override
@@ -116,30 +115,8 @@ public class TenantServiceImpl implements TenantService {
     }
 
     @Override
-    public void updateTenant(String tenantId, TenantStatus status) {
-
-    }
-
-    @Override
     public Page<TenantResponse> findAllTenants(int page, int size) {
         return tenantRepository.findAll(PageRequest.of(page, size)).map(tenantMapper::toResponse);
-    }
-
-    @Override
-    public Page<TenantResponse> findAllTenantsByStatus(int page, int size, TenantStatus status) {
-        return tenantRepository.findAllByStatus(status, PageRequest.of(page, size)).map(tenantMapper::toResponse);
-    }
-
-    @Override
-    public TenantResponse findTenantById(String tenantId) {
-        return tenantMapper.toResponse(tenantRepository.findById(tenantId).orElseThrow(() -> new ResourcesNotFoundException("Tenant not found")));
-    }
-
-    @Override
-    public void deleteTenant(String tenantId) {
-        if (tenantRepository.findById(tenantId).isPresent()) {
-            tenantRepository.deleteById(tenantId);
-        }
     }
 
     private void createInitialAdminUser(Tenant tenant) {
@@ -152,7 +129,7 @@ public class TenantServiceImpl implements TenantService {
                 .firstName(extractFirstName(tenant.getAdminName()))
                 .lastName(extractLastName(tenant.getAdminName()))
                 .email(tenant.getAdminEmail())
-                .password(passwordEncoder.encode(tenant.getAdminPassword()))
+                .password(tenant.getAdminPassword())
                 .role(UserRole.ROLE_ADMIN)
                 .tenant(tenant)
                 .createdAt(LocalDateTime.now())

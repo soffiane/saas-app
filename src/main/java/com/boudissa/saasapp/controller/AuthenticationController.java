@@ -31,7 +31,6 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<TenantResponse> registerTenant(@RequestBody @Valid TenantRequest request) {
-        tenantService.registerTenant(request);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(tenantService.registerTenant(request));
     }
 }
