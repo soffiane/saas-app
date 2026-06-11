@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String tenantId = jwtService.getTenantIdFromToken(token);
                 if (tenantId != null) {
                     TenantContext.setCurrentTenant(tenantId);
-                    TenantContext.setCurrentSchemma(tenantSchemaResolver.resolveSchemaName(tenantId));
+                    TenantContext.setCurrentSchema(tenantSchemaResolver.resolveSchemaName(tenantId));
                 }
                 //create authentication object
                 SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role);

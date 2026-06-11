@@ -29,7 +29,7 @@ public class User extends AbstractEntity implements UserDetails {
     @Column(name = "username", nullable = false, unique = true)
     private String username;
 
-    @Column(name="email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "password", nullable = false)
@@ -54,7 +54,7 @@ public class User extends AbstractEntity implements UserDetails {
     }
 
     public String getTenantId() {
-        if(tenant == null){
+        if (tenant == null) {
             return null;
         }
         return tenant.getId();

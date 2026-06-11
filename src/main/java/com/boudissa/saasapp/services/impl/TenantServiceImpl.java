@@ -26,7 +26,6 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-//@Transactional
 public class TenantServiceImpl implements TenantService {
 
     private final TenantRepository tenantRepository;
@@ -143,6 +142,10 @@ public class TenantServiceImpl implements TenantService {
     }
 
     private String extractLastName(String adminName) {
-        return adminName.split(" ")[1].length() > 1 ? adminName.split(" ")[1] : "";
+        final String[] parts = adminName.split(" ");
+        if (parts.length > 1) {
+            return parts[1];
+        }
+        return "";
     }
 }

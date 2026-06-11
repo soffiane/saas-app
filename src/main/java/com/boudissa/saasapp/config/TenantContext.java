@@ -42,8 +42,4 @@ public class TenantContext {
         CURRENT_TENANT.remove();
         CURRENT_SCHEMA.remove();
     }
-
-    public static void setCurrentSchemma(String schema) {
-        CURRENT_SCHEMA.set(schema);
-    }
 }

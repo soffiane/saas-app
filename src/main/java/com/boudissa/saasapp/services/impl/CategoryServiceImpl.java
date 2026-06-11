@@ -37,8 +37,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void update(String id, CategoryRequest request) {
-        findCategoryById(id);
-        checkIfCategoryAlreadyExistsByName(request);
+        final Category existingCategory = findCategoryById(id);
+        checkIfCategoryAlreadyExistsByNameForUpdate(request, existingCategory.getName());
 
         Category entity = categoryMapper.toEntity(request);
         entity.setId(id);
@@ -69,6 +69,12 @@ public class CategoryServiceImpl implements CategoryService {
         if (categoryOptional.isPresent()) {
             log.error("Category already exists");
             throw new DuplicateResourceException("Category already exists");
+        }
+    }
+
+    private void checkIfCategoryAlreadyExistsByNameForUpdate(CategoryRequest request, String currentName) {
+        if (!request.getName().equalsIgnoreCase(currentName)) {
+            checkIfCategoryAlreadyExistsByName(request);
         }
     }
 

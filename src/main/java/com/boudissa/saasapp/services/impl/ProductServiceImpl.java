@@ -36,8 +36,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void update(String id, ProductRequest request) {
-        findProductById(id);
-        checkIfProductAlreadyExistsByReference(request);
+        final Product existingProduct = findProductById(id);
+        checkIfProductAlreadyExistsByReferenceForUpdate(request, existingProduct.getReference());
         checkIfCategoryExistsById(request);
         final Product product = productMapper.toEntity(request);
         product.setId(id);
@@ -65,6 +65,12 @@ public class ProductServiceImpl implements ProductService {
         if (product.isPresent()) {
             log.error("Product already exists");
             throw new DuplicateResourceException("Product already exists");
+        }
+    }
+
+    private void checkIfProductAlreadyExistsByReferenceForUpdate(ProductRequest request, String currentReference) {
+        if (!request.getReference().equals(currentReference)) {
+            checkIfProductAlreadyExistsByReference(request);
         }
     }
 
