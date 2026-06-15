@@ -3,6 +3,7 @@ package com.boudissa.saasapp.controller;
 import com.boudissa.saasapp.dto.category.CategoryRequest;
 import com.boudissa.saasapp.dto.category.CategoryResponse;
 import com.boudissa.saasapp.services.CategoryService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/categories")
 @RequiredArgsConstructor
+@Tag(name = "Category Controller", description = "Category API")
 public class CategoryController {
 
     private final CategoryService categoryService;

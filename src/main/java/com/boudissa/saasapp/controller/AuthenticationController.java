@@ -6,6 +6,7 @@ import com.boudissa.saasapp.dto.tenant.TenantRequest;
 import com.boudissa.saasapp.dto.tenant.TenantResponse;
 import com.boudissa.saasapp.services.AuthenticationService;
 import com.boudissa.saasapp.services.TenantService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Authentication Controller", description = "Authentication API")
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;

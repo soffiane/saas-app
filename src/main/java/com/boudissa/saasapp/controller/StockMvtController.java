@@ -3,6 +3,7 @@ package com.boudissa.saasapp.controller;
 import com.boudissa.saasapp.dto.stockmvt.StockMvtRequest;
 import com.boudissa.saasapp.dto.stockmvt.StockMvtResponse;
 import com.boudissa.saasapp.services.StockMvtService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/stock-mvts")
 @RequiredArgsConstructor
+@Tag(name = "StockMvt Controller", description = "StockMvt API")
 public class StockMvtController {
     private final StockMvtService stockMvtService;
 

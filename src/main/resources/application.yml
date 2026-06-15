@@ -56,3 +56,10 @@ app:
     public_key_path: ${JWT_PUBLIC_KEY_PATH:/certs/public.pem}
     access-token-expiration: ${JWT_EXPIRATION:86400000}
 
+springdoc:
+  default-produces-media-type: application/json
+  default-consumes-media-type: application/json
+  swagger-ui:
+    enabled: true
+    tags-sorter: alpha
+    operations-sorter: true
