@@ -17,7 +17,7 @@ Le projet utilise Spring Boot, Spring Data JPA, PostgreSQL, Flyway, Spring Secur
 
 ## Stack technique
 
-- Java 17
+- Java 21
 - Spring Boot 4
 - Spring Data JPA
 - Spring Security
@@ -51,7 +51,7 @@ src/main/resources/db/migration/tenant
 
 Avant de lancer le projet, installer :
 
-- JDK 17
+- JDK 21
 - Maven ou utiliser le wrapper Maven fourni
 - Docker Desktop
 - Un client API optionnel : Swagger UI, Postman, Insomnia
@@ -230,9 +230,42 @@ Cela signifie que Hibernate vérifie que les tables existent et correspondent au
 
 ## Sécurité
 
-Spring Security est présent dans le projet.
+L'application utilise Spring Security avec une authentification JWT en chiffrement RSA asymétrique (RS256).
 
-Une configuration temporaire autorise les endpoints API et Swagger :
+### Authentification JWT
+
+Les tokens JWT sont signés avec une clé privée RSA et vérifiés avec la clé publique correspondante.
+
+Chaque token embarque :
+
+- `sub` : identifiant de l'utilisateur
+- `role` : rôle de l'utilisateur
+- `tenantId` : identifiant du tenant
+- `iat` / `exp` : dates d'émission et d'expiration
+
+Les clés RSA sont générées avec OpenSSL :
+
+```bash
+openssl genrsa -out private.pem 2048
+openssl rsa -in private.pem -pubout -out public.pem
+```
+
+### Flux d'authentification
+
+1. Le client envoie ses identifiants sur `POST /api/v1/auth/login`
+2. `AuthenticationServiceImpl` valide les identifiants et génère un token via `JwtService`
+3. Le token est retourné au client
+
+### Flux de validation par requête
+
+1. Le client envoie le token dans le header `Authorization: Bearer <token>`
+2. `JwtAuthenticationFilter` intercepte la requête, valide le token et alimente le `SecurityContext`
+3. Le `tenantId` extrait du token est stocké dans `TenantContext` (ThreadLocal) pour la durée de la requête
+4. `TenantContext.clear()` est appelé dans le `finally` pour éviter toute fuite entre threads
+
+### Endpoints publics
+
+Les URLs suivantes sont accessibles sans token :
 
 ```text
 /api/v1/**
@@ -240,7 +273,22 @@ Une configuration temporaire autorise les endpoints API et Swagger :
 /v3/api-docs/**
 ```
 
-Cette configuration est pratique pendant le développement. Pour une version production, il faudra ajouter une vraie authentification et une gestion des rôles.
+> Note : la liste `PUBLIC_URLS` dans `SecurityConfig` sera resserrée pour la production (login/register uniquement).
+
+### Suppression du TenantFilter
+
+Dans une première approche, l'isolation multi-tenant était assurée par un filtre servlet dédié (`TenantFilter implements Filter`) qui :
+
+- Lisait un header HTTP `X-Tenant-Id` sur chaque requête
+- Stockait la valeur dans `TenantContext` (ThreadLocal)
+- Activait un filtre Hibernate (`@FilterDef` / `@Filter`) via AOP pour ajouter automatiquement `WHERE tenant_id = :tenantId` à toutes les requêtes
+
+Cette approche a été abandonnée pour les raisons suivantes :
+
+- Le `X-Tenant-Id` était fourni par le client, sans garantie d'authenticité
+- L'activation du filtre Hibernate via AOP ajoutait de la complexité
+- L'architecture a évolué vers une isolation par schéma PostgreSQL (multi-tenant schema-based) : chaque tenant possède son propre schéma, éliminant le besoin d'un filtre de ligne par `tenant_id`
+- Le `tenantId` est désormais extrait du token JWT signé (source de confiance) par `JwtAuthenticationFilter`, rendant le `TenantFilter` superflu
 
 ## Auditing JPA
 
