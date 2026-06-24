@@ -12,6 +12,7 @@ public class CategoryMapper {
         return Category.builder()
                 .name(request.getName())
                 .description(request.getDescription())
+                .deleted(false)
                 .build();
     }
 
@@ -25,6 +26,7 @@ public class CategoryMapper {
      */
     public CategoryResponse toResponse(final Category category, final int nbProducts) {
         return CategoryResponse.builder()
+                .id(category.getId())
                 .name(category.getName())
                 .description(category.getDescription())
                 .nbProducts(nbProducts)

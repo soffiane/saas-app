@@ -1,7 +1,7 @@
 package com.boudissa.saasapp.dto.product;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -23,10 +23,10 @@ public class ProductRequest {
 
     private String description;
 
-    @Positive(message = "alert threshold must be positive or zero")
+    @PositiveOrZero(message = "alert threshold must be positive or zero")
     private Integer alertThreshold;
 
-    @Positive(message = "price must be positive or zero")
+    @PositiveOrZero(message = "price must be positive or zero")
     private BigDecimal price;
 
     @NotBlank(message = "category id is required")

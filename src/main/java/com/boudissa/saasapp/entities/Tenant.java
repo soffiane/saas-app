@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -40,7 +38,4 @@ public class Tenant extends AbstractEntity {
     private String adminUsername;
     @Column(name = "admin_password", nullable = false)
     private String adminPassword;
-
-    /*@OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<User> users;*/
 }

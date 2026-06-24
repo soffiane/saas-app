@@ -33,5 +33,4 @@ public class StockMvt extends AbstractEntity {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
-
 }

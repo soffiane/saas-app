@@ -6,11 +6,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/tenants")
 @RequiredArgsConstructor
+@PreAuthorize("hasAuthority('ROLE_PLATFORM_ADMIN')")
 @Tag(name = "Tenant Controller", description = "Tenant API")
 public class TenantController {
 
@@ -44,6 +46,4 @@ public class TenantController {
     public ResponseEntity<Page<TenantResponse>> findAllTenants(@RequestParam(name = "page", defaultValue = "0") int page, @RequestParam(name = "size", defaultValue = "10") int size) {
         return ResponseEntity.ok(tenantService.findAllTenants(page, size));
     }
-
-
 }

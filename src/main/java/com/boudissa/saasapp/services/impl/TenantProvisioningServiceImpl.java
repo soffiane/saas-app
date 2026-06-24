@@ -31,10 +31,6 @@ public class TenantProvisioningServiceImpl implements TenantProvisioningService 
             log.info("Running flyway migration for tenant: {}", schemaName);
             runTenantMigration(schemaName);
             log.info("Flyway migration completed for tenant: {}", schemaName);
-            //initialize data for this schema (optional)
-            log.info("Initializing data for tenant: {}", schemaName);
-            initializeData(schemaName);
-            log.info("Data initialized for tenant: {}", schemaName);
 
         } catch (Exception e) {
             log.error("Failed to provision tenant: {}", schemaName, e);
@@ -54,12 +50,12 @@ public class TenantProvisioningServiceImpl implements TenantProvisioningService 
     }
 
     private void createSchema(String schemaName) {
-        final String sql = String.format("CREATE SCHEMA IF NOT EXISTS %s",schemaName);
+        final String sql = String.format("CREATE SCHEMA IF NOT EXISTS %s", schemaName);
         try {
             jdbcTemplate.execute(sql);
         } catch (Exception e) {
             log.error("Failed to create schema: {}", schemaName, e);
-            throw new RuntimeException("Failed to create schema: " + schemaName, e);
+            throw new TenantProvisioningException("Failed to create schema: " + schemaName);
         }
     }
 
@@ -76,8 +72,5 @@ public class TenantProvisioningServiceImpl implements TenantProvisioningService 
         log.info("Tenant migration started");
         tenantFlyway.migrate();
         log.info("Tenant migration complete");
-    }
-
-    private void initializeData(String schemaName) {
     }
 }

@@ -8,13 +8,16 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/stock-mvts")
 @RequiredArgsConstructor
 @Tag(name = "StockMvt Controller", description = "StockMvt API")
+@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class StockMvtController {
     private final StockMvtService stockMvtService;
 
@@ -44,5 +47,10 @@ public class StockMvtController {
     @GetMapping("/{id}")
     public ResponseEntity<StockMvtResponse> findById(@PathVariable @NotNull(message = "id is required") String id) {
         return ResponseEntity.ok(stockMvtService.findById(id));
+    }
+
+    @GetMapping("/product/{productId}")
+    public ResponseEntity<Page<StockMvtResponse>> findAllByProductId(@PathVariable @NotNull(message = "productId is required") String productId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(stockMvtService.findAllByProductId(productId, PageRequest.of(page, size)));
     }
 }

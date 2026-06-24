@@ -33,9 +33,6 @@ public class JwtService {
     @PostConstruct
     void init() {
         try {
-            //KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            //privateKey = (PrivateKey) keyFactory.generatePrivate(new PKCS8EncodedKeySpec(jwtProperties.getPrivateKeyPath().getBytes()));
-            //publicKey = (PublicKey) keyFactory.generatePublic(new X509EncodedKeySpec(jwtProperties.getPublicKeyPath().getBytes()));
             privateKey = loadPrivateKey(jwtProperties.getPrivateKeyPath());
             publicKey = loadPublicKey(jwtProperties.getPublicKeyPath());
             log.info("JWT service initialized successfully");
@@ -74,11 +71,6 @@ public class JwtService {
         return claims.get("role", String.class);
     }
 
-    public boolean isTokenExpired(final String token) {
-        final Date expiration = getExpirationDateFromToken(token);
-        return expiration.before(new Date());
-    }
-
     public boolean validateToken(final String token) {
         try {
             Jwts.parser()
@@ -97,10 +89,6 @@ public class JwtService {
         } catch (SecurityException e) {
             throw new UnauthorizedException("Invalid JWT signature");
         }
-    }
-
-    private Date getExpirationDateFromToken(String token) {
-        return getClaimsFromToken(token).getExpiration();
     }
 
     private Claims getClaimsFromToken(String token) {

@@ -9,12 +9,14 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/categories")
 @RequiredArgsConstructor
 @Tag(name = "Category Controller", description = "Category API")
+@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class CategoryController {
 
     private final CategoryService categoryService;

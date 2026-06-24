@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 public class StockMvtRequest {
 
-    @NotBlank(message = "type mvt is required")
+    @NotNull(message = "type mvt is required")
     private TypeMvt typeMvt;
 
     @Positive(message = "quantity must be positive")
@@ -26,6 +26,6 @@ public class StockMvtRequest {
 
     @NotNull(message = "mvt date is required")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @PastOrPresent(message = "mvt date must be in the future or present")
+    @PastOrPresent(message = "mvt date must be in the past or present")
     private LocalDateTime mvtDate;
 }

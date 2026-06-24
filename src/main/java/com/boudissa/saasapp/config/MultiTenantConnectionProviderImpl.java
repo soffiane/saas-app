@@ -53,10 +53,12 @@ public class MultiTenantConnectionProviderImpl implements MultiTenantConnectionP
                 throw new SQLException("Invalid tenant identifier: " + tenantIdentifier);
             }
             //pour choisir le schema il faut faire un set search_path
-            //the identifier is validated above and quoted to prevent SQL injection
+            //the identifier is validated above; double-quoting prevents SQL injection
+            @SuppressWarnings("java:S2077") // tenantIdentifier is allow-list validated above
+            String sql = String.format("SET search_path TO \"%s\", public", tenantIdentifier);
             try (Statement statement = connection.createStatement()) {
-                statement.execute("SET search_path TO \"" + tenantIdentifier + "\"");
-                log.debug("Set search_path to {}", tenantIdentifier);
+                statement.execute(sql);
+                log.debug("Set search_path to {}, public", tenantIdentifier);
             } catch (SQLException e) {
                 log.error("Failed to set search_path to {}", tenantIdentifier, e);
                 connection.close();
@@ -81,7 +83,6 @@ public class MultiTenantConnectionProviderImpl implements MultiTenantConnectionP
         }
         connection.close();
     }
-
 
     @Override
     public void releaseReadOnlyConnection(String tenantIdentifier, Connection connection) throws SQLException {

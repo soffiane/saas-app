@@ -16,15 +16,18 @@ public class StockMvtMapper {
                 .quantity(request.getQuantity())
                 .comment(request.getComment())
                 .product(Product.builder().id(request.getProductId()).build())
+                .deleted(false)
                 .build();
     }
 
     public StockMvtResponse toResponse(final StockMvt stockMvt){
         return StockMvtResponse.builder()
+                .id(stockMvt.getId())
                 .typeMvt(stockMvt.getTypeMvt())
                 .quantity(stockMvt.getQuantity())
                 .comment(stockMvt.getComment())
                 .productId(stockMvt.getProduct().getId())
+                .mvtDate(stockMvt.getMvtDate())
                 .build();
     }
 }

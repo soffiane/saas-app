@@ -15,7 +15,6 @@ import com.boudissa.saasapp.repositories.UserRepository;
 import com.boudissa.saasapp.services.TenantProvisioningService;
 import com.boudissa.saasapp.services.TenantService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,7 +24,6 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class TenantServiceImpl implements TenantService {
 
     private final TenantRepository tenantRepository;
@@ -90,11 +88,6 @@ public class TenantServiceImpl implements TenantService {
     public void activateTenant(String tenantId) {
         //verify if tenant exists
         final Tenant tenant = tenantRepository.findById(tenantId).orElseThrow(() -> new ResourcesNotFoundException("Tenant not found"));
-        //check if tenant is pending
-
-        if (tenant.getStatus() != TenantStatus.PENDING) {
-            throw new InvalidTenantStateException("Tenant is not approved");
-        }
         //update tenant status
         tenant.setStatus(TenantStatus.ACTIVE);
         tenantRepository.save(tenant);

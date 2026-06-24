@@ -8,6 +8,7 @@ import com.boudissa.saasapp.exception.DuplicateResourceException;
 import com.boudissa.saasapp.exception.ResourcesNotFoundException;
 import com.boudissa.saasapp.repositories.CategoryRepository;
 import com.boudissa.saasapp.repositories.ProductRepository;
+import com.boudissa.saasapp.repositories.StockMvtRepository;
 import com.boudissa.saasapp.services.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final CategoryRepository categoryRepository;
+    private final StockMvtRepository stockMvtRepository;
 
     @Override
     public void create(ProductRequest request) {
@@ -52,12 +54,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductResponse> findAll(int page, int size) {
         return productRepository.findAll(PageRequest.of(page, size))
-                .map(productMapper::toResponse);
+                .map(product -> productMapper.toResponse(product, stockMvtRepository.sumQuantityByProductId(product.getId())));
     }
 
     @Override
     public ProductResponse findById(String id) {
-        return productMapper.toResponse(findProductById(id));
+        final Product product = findProductById(id);
+        return productMapper.toResponse(product, stockMvtRepository.sumQuantityByProductId(product.getId()));
     }
 
     private void checkIfProductAlreadyExistsByReference(ProductRequest request) {

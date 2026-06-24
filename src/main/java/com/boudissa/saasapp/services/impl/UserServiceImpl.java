@@ -8,6 +8,7 @@ import com.boudissa.saasapp.entities.Tenant;
 import com.boudissa.saasapp.entities.User;
 import com.boudissa.saasapp.entities.UserRole;
 import com.boudissa.saasapp.exception.DuplicateResourceException;
+import com.boudissa.saasapp.exception.ResourcesNotFoundException;
 import com.boudissa.saasapp.exception.UnauthorizedException;
 import com.boudissa.saasapp.repositories.TenantRepository;
 import com.boudissa.saasapp.repositories.UserRepository;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -30,28 +32,23 @@ public class UserServiceImpl implements UserService {
     private final TenantRepository tenantRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public @NonNull UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found "+username));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found " + username));
     }
 
     @Override
     public void create(UserRequest request) {
         String tenantId = TenantContext.getCurrentTenant();
         Tenant tenant = tenantRepository.findById(tenantId)
-                .orElseThrow(() -> new RuntimeException("Tenant not found"));
+                .orElseThrow(() -> new ResourcesNotFoundException("Tenant not found"));
 
-        checkIfUserAlreadyExistsByUsername(request);
-
-        if(UserRole.ROLE_USER.equals(request.getRole())){
-            throw new UnauthorizedException("User role is not allowed");
-        }
+        checkIfUserAlreadyExists(request);
 
         final User user = userMapper.toEntity(request);
         user.setTenant(tenant);
         userRepository.save(user);
         log.info("User created successfully");
-
     }
 
     @Override
@@ -63,11 +60,11 @@ public class UserServiceImpl implements UserService {
             throw new UnauthorizedException("User not found");
         }
         //il faut verifier que le nouveau username n'existe pas
-        if(userRepository.findByUsername(request.getUsername()).isPresent()){
+        if(!request.getUsername().equals(user.getUsername()) && userRepository.findByUsername(request.getUsername()).isPresent()){
             throw new DuplicateResourceException("User already exists");
         }
         //il faut verifier que le nouveau email n'existe pas
-        if(userRepository.existsByEmail(request.getEmail())){
+        if(!request.getEmail().equals(user.getEmail()) && userRepository.existsByEmail(request.getEmail())){
             throw new DuplicateResourceException("User already exists");
         }
         //verifier le role (on peut pas creer ou modifier un admin comme ca)
@@ -75,25 +72,21 @@ public class UserServiceImpl implements UserService {
             throw new UnauthorizedException("User role is not allowed");
         }
         //maj du user
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-        user.setRole(request.getRole());
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        userRepository.save(user);
+        final User updatedUser = userMapper.toEntity(request);
+        updatedUser.setId(id);
+        updatedUser.setTenant(user.getTenant());
+        updatedUser.setEnabled(user.isEnabled());
+        userRepository.save(updatedUser);
         log.info("User updated successfully");
     }
 
     @Override
     public void delete(String id) {
-        if(userRepository.findNonDeletedUserById(id).isPresent()){
-            User user = userRepository.findNonDeletedUserById(id).get();
-            user.setDeleted(true);
-            userRepository.save(user);
-            log.info("User deleted successfully");
-        }else{
-            throw new RuntimeException("User not found");
-        }
+        User user = userRepository.findNonDeletedUserById(id)
+                .orElseThrow(() -> new ResourcesNotFoundException("User not found"));
+        user.setDeleted(true);
+        userRepository.save(user);
+        log.info("User deleted successfully");
     }
 
     @Override
@@ -107,7 +100,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse findById(String id) {
         return userMapper.toResponse(userRepository.findNonDeletedUserById(id)
-                .orElseThrow(() -> new RuntimeException("User not found")));
+                .orElseThrow(() -> new ResourcesNotFoundException("User not found")));
     }
 
     @Override
@@ -134,7 +127,7 @@ public class UserServiceImpl implements UserService {
         log.info("User disabled successfully");
     }
 
-    private void checkIfUserAlreadyExistsByUsername(UserRequest user) {
+    private void checkIfUserAlreadyExists(UserRequest user) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
             throw new DuplicateResourceException("User already exists");
         }
@@ -144,8 +137,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private User findUserById(String id) {
-        String tenantId = TenantContext.getCurrentTenant();
         return userRepository.findNonDeletedUserById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourcesNotFoundException("User not found"));
     }
 }

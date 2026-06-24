@@ -12,7 +12,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +29,9 @@ public class StockMvtServiceImpl implements StockMvtService {
     @Override
     public void create(StockMvtRequest request) {
         checkIfProductExistsById(request.getProductId());
-        stockMvtRepository.save(stockMvtMapper.toEntity(request));
+        StockMvt entity = stockMvtMapper.toEntity(request);
+        entity.setMvtDate(LocalDateTime.now());
+        stockMvtRepository.save(entity);
     }
 
     @Override
@@ -35,6 +40,7 @@ public class StockMvtServiceImpl implements StockMvtService {
         checkIfProductExistsById(request.getProductId());
         final StockMvt stockMvt = stockMvtMapper.toEntity(request);
         stockMvt.setId(id);
+        stockMvt.setMvtDate(LocalDateTime.now());
         stockMvtRepository.save(stockMvt);
     }
 
@@ -64,5 +70,11 @@ public class StockMvtServiceImpl implements StockMvtService {
     private StockMvt findStockMovementById(String id) {
         return stockMvtRepository.findById(id)
                 .orElseThrow(() -> new ResourcesNotFoundException("Stock movement not found"));
+    }
+
+    @Override
+    public Page<StockMvtResponse> findAllByProductId(String productId, Pageable pageable) {
+        return stockMvtRepository.findAllByProductId(productId, pageable)
+                .map(stockMvtMapper::toResponse);
     }
 }

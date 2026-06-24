@@ -21,9 +21,9 @@ public class TenantSchemaResolver {
             return PUBLIC_SCHEMA;
         }
         try {
-            final String company_code = jdbcTemplate.queryForObject("SELECT company_code FROM tenants WHERE id = ? and deleted = false", String.class, tenantId);
-            if (company_code != null) {
-                final String schemaName = company_code.toLowerCase();
+            final String companyCode = jdbcTemplate.queryForObject("SELECT company_code FROM tenants WHERE id = ? and deleted = false", String.class, tenantId);
+            if (companyCode != null) {
+                final String schemaName = companyCode.toLowerCase();
                 log.debug("Resolved schema name for tenant {} to {}", tenantId, schemaName);
                 return schemaName;
             }

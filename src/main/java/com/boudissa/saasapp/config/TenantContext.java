@@ -11,7 +11,7 @@ package com.boudissa.saasapp.config;
  * Le ThreadLocal garantit que le tenant_id est disponible dans toute la requete et isolé par thread
  *
  * Flux:
- * 1. TenantFilter intercepte la requete HTTP et ajoute le tenant_id dans le thread local
+ * 1. JwtAuthenticationFilter extrait le tenant_id du token JWT et l'ajoute dans le thread local
  * 2. TenantContext.setCurrentTenant()
  * 3. Le code metier accede au tenant via TenantContext.getCurrentTenant()
  * 4. TenantContext.clear() permet de supprimer le tenant_id dans le thread local

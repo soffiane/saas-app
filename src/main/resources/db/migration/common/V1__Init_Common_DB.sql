@@ -41,7 +41,7 @@ create table users
     role       varchar(255) not null
         constraint users_role_check
             check ((role)::text = ANY
-                   ((ARRAY ['ROLE_ADMIN'::character varying, 'ROLE_USER'::character varying])::text[])),
+                   ((ARRAY ['ROLE_ADMIN'::character varying, 'ROLE_USER'::character varying, 'ROLE_PLATFORM_ADMIN'::character varying])::text[])),
     tenant_id  varchar(255)
         constraint fk_user_tenant
             references tenants,
@@ -49,3 +49,8 @@ create table users
     username   varchar(255) not null
         unique
 );
+
+
+insert into users (deleted, enabled, created_at, updated_at, created_by, email, first_name, id, last_name, password,
+                   role, tenant_id, updated_by, username)
+values (false,true,'2026-06-10 17:22:13.000000',null,'system','a@gmail.com','soffiane','soffiane.boudissa','boudissa','$2a$10$zPYa/bdmtXyopF0FzNcyO.1KV6W5QS9ZFhnjMpan9mEEG45P/88Eu','ROLE_PLATFORM_ADMIN',null,null,'soffiane.boudissa');
