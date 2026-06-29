@@ -85,7 +85,7 @@ La base de données est configurée dans `application.yml` avec PostgreSQL.
 Depuis la racine du projet :
 
 ```bash
-docker compose -f docker.compose.yml up -d
+docker compose -f docker-compose.yml up -d
 ```
 
 Cela démarre un conteneur PostgreSQL nommé :
@@ -97,7 +97,7 @@ saas-db
 Pour arrêter la base :
 
 ```bash
-docker compose -f docker.compose.yml down
+docker compose -f docker-compose.yml down
 ```
 
 ## Lancer l'application
@@ -328,13 +328,13 @@ Créer le package :
 Démarrer la base PostgreSQL :
 
 ```bash
-docker compose -f docker.compose.yml up -d
+docker compose -f docker-compose.yml up -d
 ```
 
 Arrêter la base PostgreSQL :
 
 ```bash
-docker compose -f docker.compose.yml down
+docker compose -f docker-compose.yml down
 ```
 
 ## Workflow de démarrage rapide
@@ -342,7 +342,7 @@ docker compose -f docker.compose.yml down
 1. Démarrer PostgreSQL :
 
 ```bash
-docker compose -f docker.compose.yml up -d
+docker compose -f docker-compose.yml up -d
 ```
 
 2. Lancer l'application :
