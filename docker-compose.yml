@@ -13,8 +13,31 @@ services:
       - postgres_data:/var/lib/postgresql/data/data
     networks:
       - saas-app-network
-    restart:
-      unless-stopped
+    restart: unless-stopped
+
+  saas-app:
+    build: .
+    container_name: saas-app
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-saas-app-db}
+      DB_USERNAME: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      JWT_PRIVATE_KEY_PATH: /app/certs/private.pem
+      JWT_PUBLIC_KEY_PATH: /app/certs/public.pem
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      SERVER_PORT: 8080
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+    volumes:
+      - ${JWT_CERTS_DIR:-./certs}:/app/certs:ro
+    depends_on:
+      - postgres
+    networks:
+      - saas-app-network
+    restart: unless-stopped
 
 volumes:
   postgres_data:
