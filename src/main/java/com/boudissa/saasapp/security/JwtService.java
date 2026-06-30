@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -33,8 +35,13 @@ public class JwtService {
     @PostConstruct
     void init() {
         try {
-            privateKey = loadPrivateKey(jwtProperties.getPrivateKeyPath());
-            publicKey = loadPublicKey(jwtProperties.getPublicKeyPath());
+            if (jwtProperties.getPrivateKeyContent() != null && !jwtProperties.getPrivateKeyContent().isBlank()) {
+                privateKey = loadPrivateKeyFromContent(jwtProperties.getPrivateKeyContent());
+                publicKey = loadPublicKeyFromContent(jwtProperties.getPublicKeyContent());
+            } else {
+                privateKey = loadPrivateKey(jwtProperties.getPrivateKeyPath());
+                publicKey = loadPublicKey(jwtProperties.getPublicKeyPath());
+            }
             log.info("JWT service initialized successfully");
         } catch (Exception e) {
             log.error("Failed to initialize JWT service", e);
@@ -100,28 +107,48 @@ public class JwtService {
     }
 
     private PublicKey loadPublicKey(String publicKeyPath) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        try (InputStream is = JwtService.class.getResourceAsStream(publicKeyPath)) {
-            if (is == null) {
-                throw new IllegalArgumentException("Public key not found");
+        final String key;
+        if (Files.exists(Paths.get(publicKeyPath))) {
+            key = Files.readString(Paths.get(publicKeyPath));
+        } else {
+            try (InputStream is = JwtService.class.getResourceAsStream(publicKeyPath)) {
+                if (is == null) {
+                    throw new IllegalArgumentException("Public key not found at: " + publicKeyPath);
+                }
+                key = new String(is.readAllBytes());
             }
-
-            final String key = new String(is.readAllBytes());
-            final String publicKeyString = key.replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "").replaceAll("\\s", "");
-            final X509EncodedKeySpec spec = new X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyString));
-            return KeyFactory.getInstance("RSA").generatePublic(spec);
         }
+        final String publicKeyString = key.replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "").replaceAll("\\s", "");
+        final X509EncodedKeySpec spec = new X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyString));
+        return KeyFactory.getInstance("RSA").generatePublic(spec);
     }
 
     private PrivateKey loadPrivateKey(String privateKeyPath) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        try (InputStream is = JwtService.class.getResourceAsStream(privateKeyPath)) {
-            if (is == null) {
-                throw new IllegalArgumentException("Private key not found");
+        final String key;
+        if (Files.exists(Paths.get(privateKeyPath))) {
+            key = Files.readString(Paths.get(privateKeyPath));
+        } else {
+            try (InputStream is = JwtService.class.getResourceAsStream(privateKeyPath)) {
+                if (is == null) {
+                    throw new IllegalArgumentException("Private key not found at: " + privateKeyPath);
+                }
+                key = new String(is.readAllBytes());
             }
-
-            final String key = new String(is.readAllBytes());
-            final String privateKeyString = key.replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "").replaceAll("\\s", "");
-            final PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyString));
-            return KeyFactory.getInstance("RSA").generatePrivate(spec);
         }
+        final String privateKeyString = key.replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "").replaceAll("\\s", "");
+        final PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyString));
+        return KeyFactory.getInstance("RSA").generatePrivate(spec);
+    }
+
+    private PrivateKey loadPrivateKeyFromContent(String content) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        final String privateKeyString = content.replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "").replaceAll("\\s", "");
+        final PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyString));
+        return KeyFactory.getInstance("RSA").generatePrivate(spec);
+    }
+
+    private PublicKey loadPublicKeyFromContent(String content) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        final String publicKeyString = content.replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "").replaceAll("\\s", "");
+        final X509EncodedKeySpec spec = new X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyString));
+        return KeyFactory.getInstance("RSA").generatePublic(spec);
     }
 }

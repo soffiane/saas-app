@@ -12,5 +12,7 @@ public class JwtProperties {
 
     private String privateKeyPath;
     private String publicKeyPath;
+    private String privateKeyContent;
+    private String publicKeyContent;
     private long accessTokenExpiration;
 }

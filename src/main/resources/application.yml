@@ -52,6 +52,8 @@ app:
   jwt:
     private_key_path: ${JWT_PRIVATE_KEY_PATH:/certs/private.pem}
     public_key_path: ${JWT_PUBLIC_KEY_PATH:/certs/public.pem}
+    private_key_content: ${JWT_PRIVATE_KEY_CONTENT:}
+    public_key_content: ${JWT_PUBLIC_KEY_CONTENT:}
     access-token-expiration: ${JWT_EXPIRATION:86400000}
 
 springdoc:
